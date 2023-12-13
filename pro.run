@@ -1,0 +1,70 @@
+param N; 				
+param R_z; 				
+param C; 				
+param H; 			
+param W; 				
+param Theta{1..N}; 		
+param Fi{1..N}; 		
+param T{1..N}; 			
+param R = R_z + H; 	
+
+param CT{i in 1..N} = C * T[i];
+
+param rad; 			
+param deg; 			
+
+param Szer_Theta{i in 1..N} = Theta[i] * rad;
+param Dlu_Fi{i in 1..N} = Fi[i] * rad;
+
+param X{i in 1..N} = R * cos(Szer_Theta[i]) * cos(Dlu_Fi[i]);
+param Y{i in 1..N} = R * cos(Szer_Theta[i]) * sin(Dlu_Fi[i]);
+param Z{i in 1..N} = R * sin(Szer_Theta[i]);
+
+var x >= 0;
+var y >= 0;
+var z >= 0;
+
+var r = sqrt(x^2 + y^2 + z^2);
+var Szer = asin(z/r) * deg;
+var Dlug = atan(y/x) * deg;
+
+
+minimize OBJECTIVE_FUN: sum{i in 1..N} (W * (x - X[i])^2 + W * (y - Y[i])^2 + W * (z - Z[i])^2 - W * CT[i]^2)^2;
+
+data;
+param N := 5;					
+param R_z := 6378137;			
+param C := 299792458;			
+param H := 20000000;		
+param W := 0.0000005;		
+
+param Theta :=					
+	1 52.885907 
+	2 50.312052 
+	3 47.796902 
+	4 50.619584 
+	5 55.488272;
+	
+param Fi :=						
+	1 13.395837 
+	2 12.373351 
+	3 19.381854 
+	4 26.244260 
+	5 28.787526;
+
+param T := 						
+	1 0.06673373199095137
+	2 0.06678066375193663 
+	3 0.06683909890606424 
+	4 0.06687425145593737 
+	5 0.06693691622507883;
+	
+param rad := 0.0174532925;	
+param deg := 57.2957795;	
+option solver minos;
+
+solve;
+
+display OBJECTIVE_FUN;
+display Szer;
+display Dlug
